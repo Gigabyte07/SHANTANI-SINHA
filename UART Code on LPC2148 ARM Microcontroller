@@ -1,0 +1,116 @@
+#include<lpc2148.h>
+
+void delay();
+void cmd(int );
+void dat(int );
+
+void delay()
+{
+int i,j;
+for(i=0;i<=1000;i++)
+for(j=0;j<=1000;j++);
+}
+
+void strdisp(unsigned char *str)
+{
+while(*str!=0)
+{
+dat(*str);
+str++;
+}}
+
+void cmd(int x)
+{
+int y=x;
+int z=x;
+IO1CLR|=(1<<23);
+IO1CLR|=(1<<24);
+IO1CLR|=(1<<22);
+IO0CLR|=0xFFFFFFFF;
+IO0SET|=(y<<6);
+delay();
+IO1SET|=(1<<22);
+delay();
+IO1CLR|=(1<<22);
+delay();
+IO1SET|=(1<<22);
+IO0CLR|=0xFFFFFFFF;
+IO0SET|=(z<<10);
+delay();
+IO1CLR|=(1<<22);
+}
+
+void dat(int x)
+{
+int y=x;
+int z=x;
+IO1CLR|=(1<<23);  
+IO1SET|=(1<<24);
+IO1CLR|=(1<<22);
+IO0CLR|=0xFFFFFFFF;
+IO0SET|=(y<<6);
+delay();
+IO1SET|=(1<<22);
+delay();
+IO1CLR|=(1<<22);
+
+delay();
+IO1SET|=(1<<22);
+IO0CLR|=0xFFFFFFFF;
+IO0SET|=(z<<10);
+delay();
+IO1CLR|=(1<<22);
+}
+
+int send_dat(int ch)
+{
+if(ch=='\n')
+{
+while(!(U0LSR&0x20));
+U0THR=0x0D;	
+}
+while(!(U0LSR&0x20));
+return(U0THR=ch);
+}
+
+int rec_dat()
+{
+while(!(U0LSR&0x01));
+return(U0RBR);
+}
+
+void main()
+{
+char *ch="HELLO\n\r";
+unsigned int data;
+
+IO0DIR=0x00003C00;
+IO1DIR=0x01C00000;
+
+cmd(0x28);
+cmd(0x01);
+cmd(0x06);
+cmd(0x0c);
+cmd(0x80);
+
+VPBDIV=0x02;
+PINSEL0=0X05;
+U0LCR=0X83;
+U0DLL=0XC3;
+U0LCR=0X03;
+
+strdisp("HELLO");
+delay();
+cmd(0x01);
+
+while(*ch)
+{
+send_dat(*ch++);
+}
+
+while(1)
+{ 
+data=rec_dat();
+dat(data);
+}		   
+} 

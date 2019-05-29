@@ -1,0 +1,37 @@
+/*
+ * switch.c
+ *
+ * Created: 4/3/2019 10:29:51 AM
+ * Author : eict
+ */ 
+
+#include <avr/io.h>
+
+
+int main(void)
+{
+    /* Replace with your application code */
+    while (1) 
+    {
+		DDRD=0b00000000;
+		DDRB=0b11111111;
+		while(1)
+		{
+			int x=(PIND&0b00000011);
+			if (x==0b00000001)  //PD0- SWITCH 1
+	
+			{
+				PORTB=0b00000011; //OP LED 
+			}
+			else if(x==0b00000010) //PD1-SWITCH 2
+			{
+				PORTB=0b00001100;
+			}
+			else
+			{
+				PORTB=0b00001111;
+			}
+		}
+    }
+}
+

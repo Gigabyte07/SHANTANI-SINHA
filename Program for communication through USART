@@ -1,0 +1,46 @@
+/*
+ * bluetooth.c
+ *
+ * Created: 4/4/2019 4:47:04 PM
+ * Author : SHANTANI
+ */ 
+
+//Program for communication using USART/UART
+//R-Tx; Tx-Rx
+
+
+#define F_CPU 8000000UL
+#include <avr/io.h>
+#include <util/delay.h>
+void USARTInit(unsigned int ubrr_value){
+	UBRRL=ubrr_value;
+	UBRRH=0;
+	UCSRC|=((1<<URSEL)||(1<<UCSZ1)||(1<<UCSZ0));  //Enable Controller to receive 8 it data
+	UCSRB=(1<<RXEN)||(1<<TXEN);
+}
+
+
+unsigned char USARTReadChar(){
+		while(!(UCSRA&(1<<RXC)));
+			return UDR;
+		}
+		
+		
+void main(){
+		DDRB =0b00000000;
+		DDRD =0b11111111;
+		unsigned char command;
+		USARTInit(51);
+		while(1){
+			
+			command=USARTReadChar();
+			if((command=='f')||(command=='F')){
+				PORTD=0b000001001;
+			}
+			if((command=='b')||(command=='B')	){
+				PORTD=0b00000110;
+			}
+		}
+}
+		
+		

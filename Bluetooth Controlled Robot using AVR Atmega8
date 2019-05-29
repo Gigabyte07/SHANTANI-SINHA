@@ -1,0 +1,44 @@
+/*
+ * bluetooth1.c
+ *
+ * Created: 4/5/2019 10:01:47 AM
+ * Author : eict
+ */ 
+
+#define F_CPU 8000000UL
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <util/delay.h>
+
+void USARTProg(unsigned int ubrr_value){
+	UBRRH = 0;
+	UBRRL = ubrr_value;
+	UCSRB |= ((1<<URSEL)||(1<<UCSZ0)||(UCSZ1));
+	UCSRC |= ((1<<RXEN)||(1<<TXEN));
+	
+}
+unsigned char USSRCharRead(){
+	while(!(UCSRA&(1<<RXC)));
+	return UDR;
+}
+int main(void)
+{
+	DDRB = 255;
+	DDRD = 0;
+	USARTProg(51);
+	while (1)
+	{
+		int x = USSRCharRead();
+		if ((x =='w')|| (x == 'W'))
+		PORTB = 0b10101010;
+		else if ((x=='d') || (x == 'D'))
+		PORTB = 0b00000101;
+		else if (x == 1)
+		PORTB = 0b00001010;
+		else if ((x=='a') || (x == 'A'))
+		PORTB = 0b00000011;
+		else
+		PORTB = 0b00000110;
+	}
+}
+

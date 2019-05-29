@@ -1,0 +1,38 @@
+#include<lpc2148.h>
+
+int arr[]={0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01} ;
+
+void delay()
+{
+int i;
+for(i=0;i<=100000;i++);
+} 
+void spi_init()
+{
+PINSEL0=0X00000080;
+IO0SET=0x80;
+VPBDIV=0x00000000;
+S0SPCCR=64;	   //prescaler
+S0SPCR=0x38;
+}
+void led()
+{
+int i,j;
+for(i=0;i<=8;i++)
+{
+ for(j=0;j<=8;j++)
+ {IO0CLR=0X80;
+ S0SPDR=arr[j];
+ while(!(S0SPSR&(1<<7)));	//status register 
+ delay(); 
+IO0SET=0x80; 
+}}}
+   
+void main()
+{
+IO0DIR=0x80;
+spi_init();
+led();
+while(1)
+{}
+}

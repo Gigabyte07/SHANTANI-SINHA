@@ -1,0 +1,23 @@
+
+#include <avr/io.h>
+
+
+
+int main(void)
+{
+    /* Replace with your application code */
+	DDRB=0b11111111;
+	DDRD=0b00000000;
+	
+	
+    while (1) 
+    {
+		int x=(PIND&0b11111111);
+		if(x==0b00000001){
+			PORTB=0b0000010;
+    }
+	else if(x==0b00100011){
+		PORTB=0b00000100;
+	}
+}
+}

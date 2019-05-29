@@ -1,0 +1,206 @@
+/*SHANTANI PROJECT*/
+
+#include <FuzzyRule.h>
+#include <FuzzyComposition.h>
+#include <Fuzzy.h>
+#include <FuzzyRuleConsequent.h>
+#include <FuzzyOutput.h>
+#include <FuzzyInput.h>
+#include <FuzzyIO.h>
+#include <FuzzySet.h>
+#include <FuzzyRuleAntecedent.h>
+
+
+// variables to take x number of readings and then average them
+// to remove the jitter/noise from the DYP-ME007 sonar readings
+const int numOfReadings = 10;
+// number of readings to take/ items in the array
+int readings[numOfReadings];
+// stores the distance readings in an array
+int arrayIndex = 0;
+// arrayIndex of the current item in the array
+int total = 0;
+// stores the cumlative total
+int averageDistance = 0;
+// DYP-ME007 echo pin (digital 5)
+int echoPin = 8;
+// DYP-ME007 trigger pin (digital 4)
+int initPin = 10;
+// stores the pulse in Micro Seconds
+unsigned long pulseTime = 0;
+// variable for storing the distance (cm)
+unsigned long dist = 0;
+
+Fuzzy* fuzzy = new Fuzzy();
+
+int ENA = 5; //M1 Speed Control
+int ENB = 6; //M2 Speed Control
+int IN1=2;//connected to Arduino's port 2
+int IN2=3;//connected to Arduino's port 3
+int IN3=4;//connected to Arduino's port 4
+int IN4=7; 
+
+void setup(){
+  Serial.begin(9600);
+  
+  pinMode(ENA,OUTPUT);
+  pinMode(ENB,OUTPUT);
+  pinMode(IN1,OUTPUT);
+  pinMode(IN2,OUTPUT);
+  pinMode(IN3,OUTPUT);
+  pinMode(IN4,OUTPUT);
+digitalWrite(ENA,LOW);
+digitalWrite(ENB,LOW);//stop driving
+digitalWrite(IN1,LOW); 
+digitalWrite(IN2,HIGH); //setting motorA's directon
+digitalWrite(IN3,HIGH);//Setting motor B's direction
+digitalWrite(IN4,LOW);
+  
+  
+  
+  // set init pin as output
+  pinMode(initPin, OUTPUT);
+  // set echo pin as input
+  pinMode(echoPin, INPUT);
+  // create array loop to iterate over every item in the array
+  for (int thisReading = 0; thisReading < numOfReadings; thisReading++) {
+    readings[thisReading] = 0;
+  }
+  
+  // creates a input distance
+  FuzzyInput* distance = new FuzzyInput(1);
+ 
+  FuzzySet* small = new FuzzySet(0, 10, 10, 20); 
+  distance->addFuzzySet(small); 
+  FuzzySet* safe = new FuzzySet(15, 30, 30, 50); 
+  distance->addFuzzySet(safe); 
+  FuzzySet* big = new FuzzySet(45, 60, 60, 60); 
+  distance->addFuzzySet(big); 
+  
+  fuzzy->addFuzzyInput(distance);
+  
+  
+  FuzzyOutput* velocitya = new FuzzyOutput(1);
+  
+  FuzzySet* slow = new FuzzySet(0, 20, 20, 30); 
+  velocitya->addFuzzySet(slow); 
+  FuzzySet* average = new FuzzySet(25, 40, 40, 50); 
+  velocitya->addFuzzySet(average); 
+  FuzzySet* fast = new FuzzySet(45, 80, 80, 80); 
+  velocitya->addFuzzySet(fast); 
+  
+  fuzzy->addFuzzyOutput(velocitya); // 
+  
+   // Criando o FuzzyOutput velocity
+  FuzzyOutput* velocityb = new FuzzyOutput(2);
+  
+  FuzzySet* slowb = new FuzzySet(0, 60, 60, 60); 
+  velocityb->addFuzzySet(slowb); 
+  FuzzySet* averageb = new FuzzySet(72, 150, 150, 210); 
+  velocityb->addFuzzySet(averageb); 
+  FuzzySet* fastb = new FuzzySet(180, 240, 240, 240); 
+  velocityb->addFuzzySet(fastb); 
+  
+  fuzzy->addFuzzyOutput(velocityb); 
+  
+  
+ 
+  FuzzyRuleAntecedent* ifDistanceSmall = new FuzzyRuleAntecedent(); 
+  ifDistanceSmall->joinSingle(small); 
+  FuzzyRuleConsequent* thenVelocityaSlowAndVelocitybAverageb = new FuzzyRuleConsequent(); 
+  thenVelocityaSlowAndVelocitybAverageb->addOutput(slow);
+  thenVelocityaSlowAndVelocitybAverageb->addOutput(averageb);
+  //establishing fuzzy rule
+  FuzzyRule* fuzzyRule1 = new FuzzyRule(1, ifDistanceSmall, thenVelocityaSlowAndVelocitybAverageb); 
+  fuzzy->addFuzzyRule(fuzzyRule1); 
+  
+  
+  FuzzyRuleAntecedent* ifDistanceSafe = new FuzzyRuleAntecedent(); 
+  ifDistanceSafe->joinSingle(safe); 
+  FuzzyRuleConsequent* thenVelocityaAverageAndVelocitybAverage = new FuzzyRuleConsequent(); 
+  thenVelocityaAverageAndVelocitybAverage->addOutput(average);
+  thenVelocityaAverageAndVelocitybAverage->addOutput(averageb);
+
+  FuzzyRule* fuzzyRule2 = new FuzzyRule(2, ifDistanceSafe, thenVelocityaAverageAndVelocitybAverage); 
+  fuzzy->addFuzzyRule(fuzzyRule2); 
+  
+  FuzzyRuleAntecedent* ifDistanceBig = new FuzzyRuleAntecedent();
+  ifDistanceBig->joinSingle(big); 
+  FuzzyRuleConsequent* thenVelocityaFastAndVelocitybFast = new FuzzyRuleConsequent(); 
+  thenVelocityaFastAndVelocitybFast->addOutput(fast);// 
+  thenVelocityaFastAndVelocitybFast->addOutput(fastb);
+  //establishing fuzzy rule
+  FuzzyRule* fuzzyRule3 = new FuzzyRule(3, ifDistanceBig, thenVelocityaFastAndVelocitybFast); 
+  fuzzy->addFuzzyRule(fuzzyRule3); 
+}
+
+void scan(){
+  
+  // send 10 microsecond pulse
+  digitalWrite(initPin, HIGH);
+  // wait 10 microseconds before turning off
+  delayMicroseconds(10);
+  // stop sending the pulse
+  digitalWrite(initPin, LOW);
+  
+  // Look for a return pulse, it should be high as the pulse goes low-high-low
+  pulseTime = pulseIn(echoPin, HIGH);
+  // Distance = pulse time / 58 to convert to cm.
+  dist = pulseTime/58;
+  // subtract the last distance
+  total = total - readings[arrayIndex];
+  // add distance reading to array
+  readings[arrayIndex] = dist;
+  // add the reading to the total
+  total = total + readings[arrayIndex];
+  
+  arrayIndex = arrayIndex + 1;
+  // go to the next item in the array
+  // At the end of the array (10 items) then start again
+  if (arrayIndex >= numOfReadings) {
+    arrayIndex = 0;
+  }
+  
+}
+
+void loop(){
+  
+  scan();
+  
+  // calculate the average distance
+  averageDistance = total / numOfReadings;
+  // print out the average distance to the debugger
+  
+  fuzzy->setInput(1, averageDistance);
+  
+  fuzzy->fuzzify();
+
+  float output1 = fuzzy->defuzzify(1);
+  float output2 = fuzzy->defuzzify(2);
+  output1=round(output1);
+  output2=round(output2);
+if(averageDistance<60){
+   output1=output1;
+   output2=output2;
+   analogWrite(ENA,output1);
+   analogWrite(ENB,output2);
+}
+else{
+digitalWrite(2,HIGH);
+digitalWrite(3,LOW);
+Serial.println(0);
+output2=190;
+analogWrite(ENA,output1);
+analogWrite(ENB,output2);
+}
+  
+  
+  Serial.print("Distance: ");
+  Serial.print(averageDistance);
+  Serial.print("Velocity: ");
+  Serial.println(output1);
+  Serial.print("Velocity: ");
+  Serial.print(output2);
+  // wait 100 milli seconds before looping again
+  delay(100);
+}

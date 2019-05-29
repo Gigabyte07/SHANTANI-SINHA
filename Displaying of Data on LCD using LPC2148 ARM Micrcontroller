@@ -1,0 +1,88 @@
+#include"LPC2148.h"
+void lcdcmd(int val);
+void lcddata(int val);
+void delay(int value);
+void delay1(void);
+void lcdstring(unsigned char *str);
+void main()
+{
+char *ch[]="hello";
+int i;
+int cmd1[5]={0x28,0x0E,0x06,0x01,0x80};		  //LCD COMMANDS
+IO1DIR=0x01C00000;      //p1:22,pi:23,p1:24 as output pins
+IO0DIR=0x00003C00;      // data pin as output pins
+delay(1000);
+
+for(i=0;i<5;i++)      //lcdcmd(0x28);
+{                     //lcdcmd(0x0E
+lcdcmd(cmd1[i]);       //lcdcmd(0x06);
+}                      //lcdcmd(0x01);   //lcd(0x80);
+
+lcdstring(* ch);
+while(1);
+}
+
+
+void lcdcmd(int val)
+{
+int x,y;
+ x=val;
+y=x;
+IO1CLR|=(1<<24); //p1:24(RS=0);command register is enable in lcd
+IO1CLR|=1<<23;   //p1:23(RW=0); WRITE OPERATION
+   //p1:22(EN=1);
+	IO0CLR|=0x00003C00;
+IO0SET|=x<<6; // enter ms nibble
+	IO1SET|=1<<22; //en=1
+delay(1000);
+IO1CLR=1<<22;	  //EN=0
+
+	///send
+ delay1();
+IO0CLR|=0x00003C00;	  //clear data
+IO1SET|=1<<22;	   //en=1
+delay(1000);
+IO0SET|=y<<10;		   //enter lsb
+IO1CLR|=1<<22;	  	  //en=0
+delay1();
+}
+void lcddata(int val)
+{
+  int x,y;
+ x=val;
+y=x;
+IO1SET|=(1<<24); //p1:24(RS=1);command register is enable in lcd
+IO1CLR|=1<<23;   //p1:23(RW=0); WRITE OPERATION
+IO0CLR|=0x00003C00;
+IO1SET|=1<<22 ;   //EN=1
+IO0SET|=x<<6; // enter ms nibble
+delay(1000);
+IO1CLR=1<<22;	  //EN=0
+
+	///send
+ delay1();
+IO0CLR|=0x00003C00;	  //clear data
+IO1SET|=1<<22;
+IO1SET|=1<<22;	   //en=1
+delay(1000);
+IO0SET|=y<<10;		   //enter lsb
+IO1CLR|=1<<22;	  	  //en=0
+delay1();
+}
+ void delay1()
+{	 int j;
+for(j=0;j<20000;j++);
+}
+void delay(int value)
+{
+int j;
+for(j=0;j<value;j++);
+}
+void lcdstring(unsigned char *str )
+{
+while(*str!=0)
+{
+lcddata(*str);
+str++;
+}
+}

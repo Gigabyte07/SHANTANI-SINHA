@@ -1,0 +1,48 @@
+/* Creator: SHANTANI
+*/
+
+	
+	
+
+  
+
+
+const int motor1=3;    //Setting the motor pin to 3
+const int motor2=4;  //Setting the motor pin to 4
+const int motor3=5;    //Setting the motor pin to 5
+const int motor4=6;  //Setting the motor pin to 6
+const int ldr1=A0;   //Setting the analog pin A0
+const int ldr2=A1;   // Setting the analog pin A1
+ int ldrStatus1=0;
+int ldrStatus2=0;
+void setup()
+{
+  Serial.begin(9600);
+  pinMode(3,OUTPUT);    //initialize the motor pin as output
+  pinMode(4,OUTPUT);   // initialize the motor pin as input
+  pinMode(A0,INPUT);    // initialize the ldr pin A0 to input
+  pinMode(A1,INPUT);   //Initialize the ldr pin A1 to input
+}
+void loop()
+{
+  int ldrStatus1= analogRead(ldr1);   //read the status of the ldr1 value
+  int ldrStatus2=analogRead(ldr2);    //read the status of the ldr2 value
+  if(ldrStatus1>=910 ||ldrStatus2>=910)
+  {
+    digitalWrite(3,HIGH);
+    digitalWrite(4,LOW);
+    digitalWrite(5,LOW);
+    digitalWrite(6,HIGH);
+    Serial.print(ldrStatus1);
+    Serial.print('\n');
+    
+  }
+ else{
+  digitalWrite(3,LOW);
+  digitalWrite(4,LOW);
+  digitalWrite(5,LOW);
+  digitalWrite(6,LOW);
+  Serial.print("MOTOR IS OFF");
+ }
+}
+

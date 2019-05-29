@@ -1,0 +1,49 @@
+#include"LPC2148.h"
+delay();
+int main()
+{
+int i,j;
+int Carr[]={0x3F,0x06,0x5B,0x4F,0x66,0x6D,0x7D,0x07,0x7F,0x6F};	  //  for cathode type seven segment display
+int Aarr[]={0x40,0x79,0x24,0x30,0x19,0x12,0x02,0x78,0x00,0x10};
+IO0DIR|=0x000000FF;
+IO1DIR=0x00C00000;
+while(1)
+{
+/*for(i=0;i<2;i++)
+{
+if(i=0)
+{  
+IO1SET|=1<<22;	 */
+ for(i=0;i<10;i++)
+ {
+IO0SET|=Aarr[i];
+delay();
+IO0CLR|=0xFF;
+}}/*
+else
+{
+IO1SET|=0x00C00000;
+ for(i=0;i<10;i++)
+{
+IO0SET|=arr[i];
+delay();
+for(j=0;j<10;j++)
+{
+IO0SET|=arr[j];
+delay();
+IO0CLR|=arr[j];
+delay();
+}
+IO0CLR|=arr[i];
+delay();
+}}
+}} */
+}
+
+
+delay()
+{
+int i,j,k;
+for(i=0;i<1000;i++)
+for(j=0;j<10000;j++);
+}

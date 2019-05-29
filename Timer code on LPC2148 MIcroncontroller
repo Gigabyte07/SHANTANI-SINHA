@@ -1,0 +1,37 @@
+/* Creator: SHANTANI
+*/
+#include"LPC2148.h"
+ delay_1s();
+void init_timer();
+int main(void)
+{
+  init_timer();
+IO0DIR|=0X80000000;
+while(1)
+{
+IO0CLR|=0X80000000;
+delay_1s();
+IO0SET|=0x80000000;
+delay_1s();
+}
+}
+void init_timer()
+{
+VPBDIV=0X02;  //CCLK is 30Mhz
+PINSEL2=0X00000000;
+T0PR=2999;		 //counter begins from 0 hence subtracting 1	  30/3000
+}
+
+
+delay_1s()
+{
+IO0DIR|=0X0003000;
+PINSEL1=0x00003000;		//match register as output
+T0TCR|=0X02;	//Reset timer
+T0TCR|=0X01; //Enable timer
+T0MR0=10000; //loading match register value
+T0EMR=0X0020; //Set the corresponding external match output to 1 on match
+while(T0TC!=T0MR0);	  //wait until the timer counter reaches the desired delay
+T0TCR|=0x02;
+//T0TCR=0x00;	 
+}

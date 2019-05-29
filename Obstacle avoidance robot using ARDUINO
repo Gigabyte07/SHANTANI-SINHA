@@ -1,0 +1,111 @@
+
+/* Obstacle avoidance robot
+Creator: SHANTANI
+*/
+
+int trigPin = 12;
+int echoPin = 11;
+int in1 = 4;      //REVerse motion of Right motor
+int in2 = 5;      
+int in3= 6;       
+int in4= 7;       //ForWarD motion of Right motor
+
+
+void setup() {
+  Serial.begin(9600); 
+   pinMode(4, OUTPUT);
+   pinMode(6, OUTPUT);
+   pinMode(4, OUTPUT);
+   pinMode(7, OUTPUT);
+   pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  // put your setup code here, to run once:
+
+}
+
+void loop() 
+{
+  long duration, distance;
+  digitalWrite(trigPin,LOW);
+  delay(2);
+  digitalWrite(trigPin,HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  duration=pulseIn(echoPin, HIGH);
+  distance =duration*0.034/2;
+  Serial.print(distance);
+  Serial.println("CM");
+  delay(10);
+ 
+  
+  if((distance>20))
+ {
+  forward();                             
+ }
+ 
+  else if(distance<20)  
+ {
+  
+   stop();
+  delay(100);
+  back();
+  delay(100);
+  digitalWrite(in1,HIGH);
+  digitalWrite(in2,LOW);
+  digitalWrite(in2,LOW);
+  digitalWrite(in2,LOW);
+  delay(100);
+  forward();
+  delay(700);
+  digitalWrite(in1,LOW);
+  digitalWrite(in2,LOW);
+  digitalWrite(in3,LOW);
+  digitalWrite(in4,HIGH);
+  delay(500);
+  forward();
+  delay(700);
+  digitalWrite(in1,LOW);
+  digitalWrite(in2,LOW);
+  digitalWrite(in3,LOW);
+  digitalWrite(in4,HIGH);
+  delay(100);
+  forward();
+  delay(500);
+  
+  
+ }}
+  void forward()
+  {
+     digitalWrite(4,HIGH);                               //       If you dont get proper movements of your robot,
+   digitalWrite(5,LOW);                               //        then alter the pin numbers
+   digitalWrite(6,LOW);                               
+   digitalWrite(7,HIGH);
+  }
+  void left()
+  {
+    digitalWrite(4,HIGH);                               //       If you dont get proper movements of your robot,
+   digitalWrite(5,LOW);                               //        then alter the pin numbers
+   digitalWrite(6,HIGH);                               
+   digitalWrite(7,HIGH);
+  }
+  void right()
+  {
+    digitalWrite(in1,LOW);
+  digitalWrite(in2,LOW);
+  digitalWrite(in3,HIGH);
+  digitalWrite(in4,LOW);
+  }
+  void stop()
+  {
+   digitalWrite(in1,LOW);
+  digitalWrite(in2,LOW);
+  digitalWrite(in3,LOW);
+  digitalWrite(in4,LOW); 
+  }
+void back()
+{
+  digitalWrite(in1,LOW);
+digitalWrite(in2,HIGH);
+digitalWrite(in3,HIGH);
+digitalWrite(in4,LOW);
+}

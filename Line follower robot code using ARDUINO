@@ -1,0 +1,60 @@
+/*   LINE FOLLOWER ROBOT CODE
+
+ Creator : SHANTANI
+ */
+
+	
+
+     
+
+int motor1=8;
+int motor2=9;
+int motor3=10;
+int motor4=11;
+int ir1=12;
+int ir2=13;
+void setup()
+{
+  pinMode(8,OUTPUT);
+  pinMode(9,OUTPUT);
+  pinMode(10,OUTPUT);
+  pinMode(11,OUTPUT);
+  pinMode(12,INPUT);
+  pinMode(13,INPUT);
+}
+void loop()
+{
+  
+ 
+  if(digitalRead(ir1)==HIGH&&digitalRead(ir2)==HIGH);
+{
+  digitalWrite(8,LOW);
+  digitalWrite(9,HIGH);
+  digitalWrite(10,LOW);
+  digitalWrite(11,HIGH);
+}
+  if(digitalRead(ir1)==LOW&&digitalRead(ir2)==HIGH);
+  {
+  digitalWrite(8,LOW);
+  digitalWrite(9,HIGH);
+  digitalWrite(10,LOW);
+  digitalWrite(11,LOW);
+  }
+  if(digitalRead(ir1)==HIGH&&digitalRead(ir2)==LOW);
+  {
+  digitalWrite(8,LOW);
+  digitalWrite(9,LOW);
+  digitalWrite(10,LOW);
+  digitalWrite(11,HIGH); 
+  }
+  if(digitalRead(ir1)==LOW&&digitalRead(ir2)==LOW);
+  {
+  digitalWrite(8,LOW);
+  digitalWrite(9,HIGH);
+  digitalWrite(10,LOW);
+  digitalWrite(11,HIGH);
+  }
+}
+  
+  
+

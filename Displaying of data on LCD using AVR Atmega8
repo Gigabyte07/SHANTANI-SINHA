@@ -1,0 +1,63 @@
+#include <avr/io.h>
+#include <util/delay.h>
+
+#define RS PC0
+#define RW PC1
+#define EN PC2
+#define LCD_DIR DDRB
+#define LCD_COM DDRC
+#define LCD_PORT PORTB
+#define LCD_COM_PORT PORTC
+
+void LCD_command(unsigned char cmnd){
+	LCD_PORT=cmnd;
+	LCD_COM_PORT &= ~(1<<RS);		// set RS=0 for reading
+	LCD_COM_PORT &= ~(1<<RW);		// set RW=0  for writing
+	LCD_COM_PORT |= (1<<EN)	;		// Initialize Enable pulse
+	_delay_ms(1);
+	LCD_COM_PORT &=  ~(1<<EN);
+	_delay_ms(2);
+	
+}
+
+void LCD_Data(unsigned char data){
+	LCD_PORT=data;
+	LCD_COM_PORT |= (1<<RS)	;	// set RS=1 for writing
+	LCD_COM_PORT &= ~(1<<RW);		// set RW=0  for writing
+	LCD_COM_PORT |= (1<<EN)	;		// Initialize Enable pulse
+	_delay_ms(1);
+	LCD_COM_PORT &=  ~(1<<EN);
+	_delay_ms(2);
+	
+}
+
+void LCD_Init(){
+	LCD_DIR=0xFF;
+	LCD_COM=0xFF;
+	
+	_delay_ms(20);		// delay pf 15ms required to LCD to get it on
+	LCD_command(0x38);		// use LCD in 8 bit mode
+	LCD_command(0x0C);		// display on cursor off
+	LCD_command(0x06);		// auto increment the cursor
+	LCD_command(0x01);		// Clear the display
+	LCD_command(0x80);		// cursor at initial position
+}
+
+void LCD_Data_Value(char *c){
+	int i;
+	for(i=0; c[i]!= 0 ; i++){
+		LCD_Data(c[i]);
+		
+	}
+}
+
+
+int main(void)
+{
+
+	LCD_Init();
+	LCD_Data_Value("Jammu University");
+	LCD_command(0xc0);		//next line
+	LCD_Data_Value("Computer Sc Department");
+
+}

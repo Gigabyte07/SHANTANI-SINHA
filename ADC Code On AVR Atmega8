@@ -1,0 +1,44 @@
+/*
+ * ADC.c
+ *
+ * Created: 4/5/2019 10:33:48 AM
+ * Author : SHANTANI
+ */ 
+//Potentiometer Input-ADC0
+//Port-8 LEDs
+#include <avr/io.h>
+#include <util/delay.h>
+#include <stdlib.h>
+
+void ADC_init(void);
+unsigned int ADC_read(unsigned int p);
+unsigned int adc_result;
+
+void main(){
+	DDRA=0b11111111;
+	ADC_init();
+	PORTA=0XFF;
+	while(1){
+		adc_result=ADC_read(0);
+		PORTB=adc_result;
+	}
+}
+
+void ADC_init(void){
+	ADMUX=(1<<REFS0);
+	ADCSRA=(1<<ADEN)|(1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0);
+	
+}
+ unsigned int ADC_read(unsigned int p){
+	p= p & 0b00000111;
+	ADMUX |=p;
+	ADCSRA|=(1<<ADSC);      //start conversion
+	while(!(ADCSRA&(1<<ADIF))) ;
+	 //waiting for ADIF conversion complete
+
+ADCSRA|=(1<<ADIF);
+return(ADC);
+}
+
+	
+

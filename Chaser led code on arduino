@@ -1,0 +1,37 @@
+/* CHASER LED
+Creator: SHANTANI
+*/
+
+
+ 
+
+
+
+int led1=4;
+int led[]={8,9,10,11};
+void setup()
+{
+  for(int i=0;i<=led1;i++)
+  {
+  pinMode(led[],OUTPUT);
+   
+}
+}
+void loop()
+{
+  for(int i=0;i<=led1;i++)
+  {
+  digitalWrite(led[],HIGH);
+  delay(1000);
+  digitalWrite(led[],LOW);
+  
+}
+for(int i=led1; i>=led1;i--)
+{
+digitalWrite(led[],HIGH);
+delay(1000);
+digitalWrite(led[],LOW);
+delay(1000);
+}
+}
+

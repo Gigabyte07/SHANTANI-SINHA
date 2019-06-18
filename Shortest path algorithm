@@ -1,0 +1,548 @@
+/*Shortest path algorithm
+Creator-SHANTANI SINHA*/
+char directions[30]; // Define Array for direction decisions
+
+char reshortn[30];
+char shortn[30];
+
+char flip[30];
+char reverse[30];
+
+#include<LiquidCrystal.h>
+LiquidCrystal lcd(2, 3, 4, 5, 6, 7);
+
+int rm1 = 24;
+int rm2 = 25;
+int lm1 = 0;
+int lm2 = 1;
+
+int l, c1, c2, c3, r;
+
+int i = 0;
+int k = 0;
+int j = 0;
+int f = 0;
+int v = 0;
+int len = 0;
+
+int tdelay = 750;
+int fdelay = 30;
+int udelay = 1600;
+
+void Stop()
+{
+  digitalWrite(lm1, 0);
+  digitalWrite(lm2, 0);
+  digitalWrite(rm1, 0);
+  digitalWrite(rm2, 0);
+}
+
+void Forward()
+{
+  digitalWrite(lm1, 1);
+  digitalWrite(lm2, 0);
+  digitalWrite(rm1, 1);
+  digitalWrite(rm2, 0);
+}
+
+void Backward()
+{
+  digitalWrite(lm1, 0);
+  digitalWrite(lm2, 1);
+  digitalWrite(rm1, 0);
+  digitalWrite(rm2, 1);
+}
+
+void Left()
+{
+  digitalWrite(lm1, 0);
+  digitalWrite(lm2, 1);
+  digitalWrite(rm1, 1);
+  digitalWrite(rm2, 0);
+}
+
+void Right()
+{
+  digitalWrite(lm1, 1);
+  digitalWrite(lm2, 0);
+  digitalWrite(rm1, 0);
+  digitalWrite(rm2, 1);
+}
+
+void SmallLeft()
+{
+  digitalWrite(lm1, 0);
+  digitalWrite(lm2, 0);
+  digitalWrite(rm1, 1);
+  digitalWrite(rm2, 0);
+}
+
+void SmallRight()
+{
+  digitalWrite(lm1, 1);
+  digitalWrite(lm2, 0);
+  digitalWrite(rm1, 0);
+  digitalWrite(rm2, 0);
+}
+
+int eosens()
+{
+  readsens();
+  if (((c1 + c2 + c3) == 1) || ((c1 + c2 + c3) == 2))
+    return 1;
+  else
+    return 0;
+}
+
+void readsens() //reading the sensor values
+{
+  l = digitalRead(26);
+  c1 = digitalRead(27);
+  c2 = digitalRead(28);
+  c3 = digitalRead(29);
+  r = digitalRead(30);
+
+  lcd.print(l);
+  lcd.print(" ");
+  lcd.print(c1);
+  lcd.print(" ");
+  lcd.print(c2);
+  lcd.print(" ");
+  lcd.print(c3);
+  lcd.print(" ");
+  lcd.print(r);
+  lcd.print(" ");
+}
+
+void inch() //performing inch function by moving fwd a bit
+{
+  lcd.print("Inch Function");
+  Stop();
+  delay(100);
+  Forward();
+  delay(500);
+  Stop();
+  delay(100);
+  readsens();
+  lcd.clear();
+}
+
+void align() //aligning robot to centre sensor
+{
+  lcd.print("Aligning");
+  Stop();
+  delay(100);
+  Forward();
+  delay(80);
+  Stop();
+  delay(100);
+  lcd.clear();
+  readsens();
+}
+
+void printing(char prtdirection[])
+{
+  lcd.clear();
+  for (i = 0; prtdirection[i] != 'E'; i++)
+  {
+    lcd.print(prtdirection[i]);
+  }
+  delay(2000);
+}
+void setup() {
+
+  lcd.begin(16, 2);
+  lcd.print("MSR with LHR");
+  delay(500);
+  lcd.clear();
+
+  pinMode(lm1, OUTPUT);
+  pinMode(lm2, OUTPUT);
+  pinMode(rm1, OUTPUT);
+  pinMode(rm2, OUTPUT);
+  pinMode(26, INPUT);
+  pinMode(27, INPUT);
+  pinMode(28, INPUT);
+  pinMode(29, INPUT);
+  pinMode(30, INPUT);
+}
+
+void loop()
+
+/* MAZE SOLVING CODE*/
+
+{
+  lcd.clear();
+  readsens();
+  lcd.clear();
+
+  if ((l == 1) && (c1 == 1) && (c2 == 0) && (c3 == 1) && (r == 1))
+  {
+    lcd.print("Forward");
+    Forward();
+  }
+
+  else if (((l == 1) && (c1 == 0) && (c2 == 1) && (c3 == 1) && (r == 1)) || ((l == 1) && (c1 == 0) && (c2 == 0) && (c3 == 1) && (r == 1)) || ((l == 0) && (c1 == 1) && (c2 == 1) && (c3 == 1) && (r == 1)))
+  {
+    lcd.print("Left");
+    SmallLeft();
+  }
+
+  else if (((l == 1) && (c1 == 1) && (c2 == 1) && (c3 == 0) && (r == 1)) || ((l == 1) && (c1 == 1) && (c2 == 0) && (c3 == 0) && (r == 1))  || ((l == 1) && (c1 == 1) && (c2 == 1) && (c3 == 1) && (r == 0)))
+  {
+    lcd.print("Right");
+    SmallRight();
+  }
+
+  else if ((l == 1) && (c1 == 1) && (c2 == 1) && (c3 == 1) && (r == 1))
+  {
+    lcd.print("U Turn");
+    Left();
+    delay(udelay);
+    directions[i] = 'U';
+    i++;
+  }
+
+  else if ((l == 0) && (c1 == 0) || (c3 == 0) && (r == 0))
+  {
+    align();
+
+    if (((l == 1) && (c1 == 1) && (c2 == 0) && (c3 == 0) && (r == 0)) || ((l == 1) && (c1 == 0) && (c2 == 0) && (c3 == 0) && (r == 0)))
+    {
+      lcd.print("RT/Strt n rt?");
+      inch();
+      if (((l == 1) && (c1 == 1) && (c2 == 1) && (c3 == 1) && (r == 1)))
+      {
+        lcd.print("Right");
+        Right();
+        delay(tdelay);
+      }
+      else if ((l == 1) && (r == 1) && (eosens()))
+      {
+        lcd.print("Straight");
+        directions[i] = 'S';
+        i++;
+        Forward();
+        delay(fdelay);
+      }
+    }
+
+    else if (((l == 0) && (c1 == 0) && (c2 == 0) && (c3 == 1) && (r == 1)) || ((l == 0) && (c1 == 0) && (c2 == 0) && (c3 == 0) && (r == 1)) || ((l == 0) && (c1 == 0) && (c2 == 1) && (c3 == 1) && (r == 1)))
+    {
+      lcd.print("Lft/Srt n lft?");
+      inch();
+      if ((l == 1) && (c1 == 1) && (c2 == 1) && (c3 == 1) && (r == 1))
+      {
+        lcd.print("Left");
+        Left();
+        delay(tdelay);
+      }
+      else if ((l == 1) && (r == 1) && (eosens()))
+      {
+        lcd.print("Left");
+        directions[i] = 'L';
+        i++;
+        Left();
+        delay(tdelay);
+      }
+    }
+
+    else if ((l == 0) && (c1 == 0) && (c2 == 0) && (c3 == 0) && (r == 0))
+    {
+      lcd.print("T/END/4");
+      inch();
+      if ((l == 1) && (r == 1) && (eosens()))
+      {
+        lcd.print("4 Way");
+        directions[i] = 'L';
+        i++;
+        Left();
+        delay(tdelay);
+      }
+      else if ((l == 1) && (c1 == 1) && (c2 == 1) && (c3 == 1) && (r == 1))
+      {
+        lcd.print("T-int");
+        directions[i] = 'L';
+        i++;
+        Left();
+        delay(tdelay);
+      }
+      else if ((l == 0) && (c1 == 0) && (c2 == 0) && (c3 == 0) && (r == 0))
+      {
+        lcd.print("End of Maze");
+        directions[i] = 'E';
+        printing(directions);
+
+        Left();
+        delay(1650);  // Take a U-Turn
+
+        Stop();
+        delay(10000);
+        lcd.clear();
+        replacement(directions);
+
+      }
+    }
+  }
+}
+
+/* SHORTEST PATH ALGORITHM */
+
+void replacement(char shortn[]) {
+
+  lcd.print("Entered Replacement");
+  delay(1000);
+  lcd.clear();
+
+  for (i = 0; shortn[i] != 'E'; i++)
+
+  {
+    if (shortn[i] == 'U')
+    {
+      if ((shortn[i - 1] == 'S') && (shortn[i + 1] == 'L'))
+      {
+        shortn[i - 1] = 'x';
+        shortn[i] = 'x';
+        shortn[i + 1] = 'R';
+      }
+      else if ((shortn[i - 1] == 'L') && (shortn[i + 1] == 'L'))
+      {
+        shortn[i - 1] = 'x';
+        shortn[i] = 'x';
+        shortn[i + 1] = 'S';
+      }
+      else if ((shortn[i - 1] == 'L') && (shortn[i + 1] == 'S'))
+      {
+        shortn[i - 1] = 'x';
+        shortn[i] = 'x';
+        shortn[i + 1] = 'R';
+      }
+      else if ((shortn[i - 1] == 'L') && (shortn[i + 1] == 'R'))
+      {
+        shortn[i - 1] = 'x';
+        shortn[i] = 'x';
+        shortn[i + 1] = 'U';
+      }
+      else if ((shortn[i - 1] == 'R') && (shortn[i + 1] == 'L'))
+      {
+        shortn[i - 1] = 'x';
+        shortn[i] = 'x';
+        shortn[i + 1] = 'U';
+      }
+      else if ((shortn[i - 1] == 'S') && (shortn[i + 1] == 'S'))
+      {
+        shortn[i - 1] = 'x';
+        shortn[i] = 'x';
+        shortn[i + 1] = 'U';
+      }
+    }
+  }
+
+  lcd.clear();
+  lcd.print("Finished New Path");
+  delay(1000);
+
+  lcd.print("New: ");
+  j = 0;
+
+  for (i = 0; shortn[i] != 'E'; i++)
+  {
+    if (shortn[i] != 'x')
+    {
+      reshortn[j] = shortn[i];
+      j++;
+      len++;                                         //finding the length of array
+    }
+  }
+
+  reshortn[j] = 'E';
+  lcd.print("SPA=");
+
+  printing(reshortn);
+  delay(1000);
+
+  for (i = 0; reshortn[i] != 'E'; i++);
+  {
+    if (reshortn[i] == 'U')
+    {
+      replacement(reshortn);
+    }
+  }
+  lcd.clear();
+  lcd.print("Flip Decisions");
+  delay(1000);
+  lcd.print("New Decisions");
+  f = 0;
+
+  for (j = 0; reshortn[j] != 'E'; j++)
+  {
+
+    flip[f] = reshortn[j];
+    f++;
+
+  }
+
+  flip[f] = 'E';
+  lcd.print("SPA Flip= ");
+  printing(flip);
+  delay(1000);
+
+  for (j = 0; flip[j] != 'E'; j++) // Flipping Left and Right
+  {
+    if (flip[j] == 'R')
+    {
+      flip[j] = 'L';
+    }
+    else if (flip[j] == 'L')
+    {
+      flip[j] = 'R';
+    }
+  }
+  lcd.print("after Flip= ");
+  printing(flip);
+  delay(1000);
+  
+  len = f;
+  lcd.print("length of flip= ");
+  lcd.print(len);
+  delay(1000);
+
+  j=0;
+  for (i = (len - 1); i >= 0; i--)
+  {
+    reverse[j]=flip[i];
+    j++;
+  }
+  reverse[j]='E';
+
+  
+  lcd.clear();
+  lcd.print("FINAL = ");
+  printing(reverse);
+ 
+  final();
+}
+
+void decisions() {
+
+  lcd.print("Entered decisions");
+  lcd.clear();
+
+  if (reverse[k] == 'S')
+  {
+    Forward();
+    delay(fdelay);
+  }
+  else if (reverse[k] == 'L')
+  {
+    Left();
+    delay(tdelay);
+  }
+  else if (reverse[k] == 'R')
+  {
+    Right();
+    delay(tdelay);
+  }
+  k++;
+}
+
+/* FINAL PATH*/
+
+void final() {
+
+  lcd.clear();
+  lcd.print("Entered Final");
+
+  while (1)
+  {
+    readsens();
+
+    /* LINE FOLLOWER SENSORS*/
+
+    if ((l == 1) && (c1 == 1) && (c2 == 0) && (c3 == 1) && (r == 1))
+    {
+      lcd.print("Forward");
+      Forward();
+    }
+    else if (((l == 1) && (c1 == 0) && (c2 == 1) && (c3 == 1) && (r == 1)) || ((l == 1) && (c1 == 0) && (c2 == 0) && (c3 == 1) && (r == 1)) || ((l == 0) && (c1 == 1) && (c2 == 1) && (c3 == 1) && (r == 1)))
+    {
+      lcd.print("Left");
+      SmallLeft();
+    }
+    else if (((l == 1) && (c1 == 1) && (c2 == 1) && (c3 == 0) && (r == 1)) || ((l == 1) && (c1 == 1) && (c2 == 0) && (c3 == 0) && (r == 1)) || ((l == 1) && (c1 == 1) && (c2 == 1) && (c3 == 1) && (r == 0)))
+    {
+      lcd.print("Right");
+      SmallRight();
+    }
+
+    /* MAZE ROBOT 3 Categories*/
+
+    else if ((l == 0) && (c1 == 0) || (c3 == 0) && (r == 0))
+    {
+      align();
+
+      if (((l == 1) && (c1 == 1) && (c2 == 0) && (c3 == 0) && (r == 0)) || ((l == 1) && (c1 == 0) && (c2 == 0) && (c3 == 0) && (r == 0)) || ((l == 1) && (c1 == 1) && (c2 == 1) && (c3 == 0) && (r == 0)))
+      {
+        inch();
+        if (((l == 1) && (c1 == 1) && (c2 == 1) && (c3 == 1) && (r == 1)))
+        {
+          lcd.print("Right");
+          Right();
+          delay(tdelay);
+        }
+        else if ((l == 1) && (r == 1) && (eosens()))
+        {
+          decisions();
+        }
+      }
+
+      else if (((l == 0) && (c1 == 0) && (c2 == 0) && (c3 == 1) && (r == 1)) || ((l == 0) && (c1 == 0) && (c2 == 0) && (c3 == 0) && (r == 1)) || ((l == 0) && (c1 == 0) && (c2 == 1) && (c3 == 1) && (r == 1)))
+      {
+        inch();
+        if ((l == 1) && (c1 == 1) && (c2 == 1) && (c3 == 1) && (r == 1))
+        {
+          lcd.print("Left");
+          Left();
+          delay(tdelay);
+        }
+        else if ((l == 1) && (r == 1) && (eosens()))
+        {
+          lcd.print("Stnlt");
+          decisions();
+        }
+      }
+
+      else if ((l == 0) && (c1 == 0) && (c2 == 0) && (c3 == 0) && (r == 0))
+      {
+        lcd.print("T/END/4");
+        inch();
+        if ((l == 1) && (r == 1) && (eosens()))
+        {
+          decisions();
+        }
+        else if ((l == 1) && (c1 == 1) && (c2 == 1) && (c3 == 1) && (r == 1))
+        {
+          decisions();
+        }
+        else if ((l == 0) && (c1 == 0) && (c2 == 0) && (c3 == 0) && (r == 0))
+        {
+          while (1)
+          {
+            Stop();
+          }
+
+
+        }
+      }
+           else if ((l == 1) && (c1 == 1) && (c2 == 1) && (c3 == 1) && (r == 1))
+           {
+            while (1)
+            {
+              Stop();
+            }
+           }
+
+    }
+
+  }
+}

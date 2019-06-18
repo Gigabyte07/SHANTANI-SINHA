@@ -1,0 +1,138 @@
+/* computer controlled robotic arm
+Creator-SHANTANI SINHA*/
+#include<LiquidCrystal.h>   //LCD library
+LiquidCrystal lcd(2,3,4,5,6,7);
+const int lm1= 24;
+const int lm2= 25;
+const int rm1= 0;
+const int rm2= 1;
+
+const int e1= 13;
+const int e2= 14;
+const int w1= 15;
+const int w2= 16;
+
+void Forward()
+{
+  digitalWrite(lm1,HIGH);
+  digitalWrite(lm2,LOW);
+  digitalWrite(rm1,HIGH);
+  digitalWrite(rm2,LOW);
+}
+void Stop()
+{
+  digitalWrite(lm1,LOW);
+  digitalWrite(lm2,LOW);
+  digitalWrite(rm1,LOW);
+  digitalWrite(rm2,LOW);
+
+  digitalWrite(e1,LOW);
+  digitalWrite(e2,LOW);
+  digitalWrite(w1,LOW);
+  digitalWrite(w2,LOW);
+}
+void Reverse()
+{
+  digitalWrite(lm1,LOW);
+  digitalWrite(lm2,HIGH);
+  digitalWrite(rm1,LOW);
+  digitalWrite(rm2,HIGH);
+}
+void Right()
+{
+  digitalWrite(lm1,HIGH);
+  digitalWrite(lm2,LOW);
+  digitalWrite(rm1,LOW);
+  digitalWrite(rm2,HIGH);
+}
+void Left()
+{
+  digitalWrite(lm1,LOW);
+  digitalWrite(lm2,HIGH);
+  digitalWrite(rm1,HIGH);
+  digitalWrite(rm2,LOW);
+}
+void ElbowUp()
+{
+  digitalWrite(e1,1);
+  digitalWrite(e2,0);
+}
+void ElbowDown()
+{
+  digitalWrite(e1,0);
+  digitalWrite(e2,1);
+}
+void WristUp()
+{
+  digitalWrite(w1,1);
+  digitalWrite(w2,0);
+}
+void WristDown()
+{
+  digitalWrite(w1,0);
+  digitalWrite(w2,1);
+}
+void setup()
+{
+  Serial.begin(9600);
+   pinMode(lm1,OUTPUT);
+  pinMode(lm2,OUTPUT);
+  pinMode(rm1,OUTPUT);
+  pinMode(rm2,OUTPUT);
+  pinMode(e1,OUTPUT);
+  pinMode(e2,OUTPUT);
+  pinMode(w1,OUTPUT);
+  pinMode(w2,OUTPUT);
+  lcd.begin(16,2);
+  lcd.print(" ROBOT IS WORKING");
+  delay(1000);
+}
+void loop()
+{
+  lcd.clear();
+  while(!Serial.available())
+  {
+    lcd.clear();
+    lcd.print("No data Available-Stop");
+    delay(50);
+    Stop();
+  }
+  char c=Serial.read();
+  Serial.println(c);
+  lcd.print(c);
+  delay(50);
+  if(c=='A')
+  {
+    Left();
+  }
+   else if(c=='D')
+  {
+    Right();
+  }
+  else if(c=='W')
+  {
+    Forward();
+  }
+  else if(c=='S')
+  {
+    Reverse();
+  }
+  else if(c=='O')
+  {
+    WristUp();
+  }
+  else if(c=='P')
+  {
+    WristDown();
+  }
+  else if(c=='K')
+  {
+    ElbowUp();
+  }
+  else if(c=='L')
+  {
+    ElbowDown();
+  }
+}
+    
+ 

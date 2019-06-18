@@ -1,0 +1,109 @@
+/*Gesture controlled robotic arm
+REMOTE SIDE CODE
+Creator- SHANTANI SINHA*/
+//Remote code
+const int xpin=A0;
+const int ypin=A1;
+void setup()
+{
+  Serial.begin(9600);
+  
+}
+void loop()
+{
+  int x=analogRead(A0);                     // read x pin value
+  int y=analogRead(A1);                     // read y pin value
+  if(((x<=( 446  ))&&(x>=( 346)))&&((y<=( 452 ))&&(y>=( 352 ))))
+  {
+    Serial.print('S');    //Stop   
+  }
+  if(y<(352 ))
+  {
+    Serial.print('F');    //forward  
+  }
+  if(y>(452))
+
+
+  {
+    Serial.print('R');    //Reverse  
+  }
+  if(x>(452))
+  
+  {
+    Serial.print('L');    //Left   
+  }
+  if(x<(356))
+  {
+    Serial.print('I');    //Right 
+  }
+}
+
+/*ROBOT CODE*/
+int lm1=24;
+int lm2=25;
+int rm1=0;
+int rm2=1;
+void forward()
+{
+  digitalWrite(lm1,HIGH);
+  digitalWrite(lm2,LOW);
+  digitalWrite(rm1,HIGH);
+  digitalWrite(rm2,LOW);
+}
+void Stop()
+{
+  digitalWrite(lm1,LOW);
+  digitalWrite(lm2,LOW);
+  digitalWrite(rm1,LOW);
+  digitalWrite(rm2,LOW);
+}
+void Reverse()
+{
+  digitalWrite(lm1,LOW);
+  digitalWrite(lm2,HIGH);
+  digitalWrite(rm1,LOW);
+  digitalWrite(rm2,HIGH);
+}
+void Right()
+{
+  digitalWrite(lm1,HIGH);
+  digitalWrite(lm2,LOW);
+  digitalWrite(rm1,LOW);
+  digitalWrite(rm2,HIGH);
+}
+void Left()
+{
+  digitalWrite(lm1,LOW);
+  digitalWrite(lm2,HIGH);
+  digitalWrite(rm1,HIGH);
+  digitalWrite(rm2,LOW);
+}
+void setup()
+{
+  Serial.begin(9600);
+  pinMode(lm1,OUTPUT);
+  pinMode(lm2,OUTPUT);
+  pinMode(rm1,OUTPUT);
+  pinMode(rm2,OUTPUT);
+  
+
+}
+void loop()
+{
+  while(!Serial.available());
+  char c= Serial.read();
+  Serial.println();
+  if(c=='f')                  //Forward range
+  forward();
+  
+  if(c=='b')
+  Reverse();
+  if(c=='l')
+  Left();
+  if(c=='r')
+  Right();
+  else
+  Stop(); 
+}
+  
+  
